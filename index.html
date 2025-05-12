@@ -1,120 +1,122 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Card de Boas-Vindas</title>
+  <meta charset="UTF-8" />
+  <title>Card de Boas-Vindas - CNPJ Legal</title>
   <style>
     body {
-      background-color: #111;
-      font-family: Arial, sans-serif;
+      background-color: #121212;
       color: white;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .card-container {
+      width: 100%;
+      max-width: 400px;
+      background: #000;
+      border-radius: 20px;
+      padding: 20px;
       text-align: center;
-      padding: 20px;
     }
-    .container {
-      background-color: #000;
-      border-radius: 16px;
-      padding: 20px;
-      max-width: 440px;
-      margin: auto;
-    }
-    h1 {
+    h2 {
       color: #00e500;
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    p.instrucoes {
+      font-size: 14px;
+      color: #ccc;
+      margin-top: 0;
+      margin-bottom: 12px;
     }
     input[type="file"], input[type="text"] {
-      width: 95%;
+      margin: 6px 0;
       padding: 10px;
-      margin: 10px 0;
-      font-size: 16px;
+      width: 100%;
       border-radius: 6px;
       border: none;
+      font-size: 14px;
+    }
+    canvas {
+      display: none;
     }
     button {
-      padding: 12px 20px;
-      margin: 10px 5px;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .ver {
-      background-color: #007bff;
-      color: white;
-    }
-    .baixar {
       background-color: #00e500;
       color: black;
-    }
-    #preview img {
-      margin-top: 20px;
-      width: 100%;
-      border-radius: 20px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Gerar Card de Boas-Vindas</h1>
-    <p style="color: #ccc; font-size: 14px;">
-      Insira a foto personalizada e o nome do Embaixador.<br>
-      Após o download, envie no grupo marcando o novo embaixador.
+  <div class="card-container">
+    <h2>Gerar Card de Boas-Vindas</h2>
+    <p class="instrucoes">
+      Insira a <strong>foto personalizada</strong> e o <strong>nome do novo Embaixador</strong>.<br />
+      Após o download, envie no grupo marcando a pessoa desejando boas-vindas. 🥳
     </p>
-    <input type="file" id="fotoInput" accept="image/*"><br>
-    <input type="text" id="nomeInput" placeholder="Nome do Embaixador"><br>
-    <button class="ver" onclick="visualizarCard()">👁️ Visualizar</button>
-    <button class="baixar" onclick="baixarCard()">📥 Baixar</button>
-    <div id="preview"></div>
-    <canvas id="canvas" width="1080" height="1350" style="display:none;"></canvas>
+    <input type="file" id="photoInput" accept="image/*" />
+    <input type="text" id="nomeInput" placeholder="Nome do novo Embaixador" />
+    <canvas id="canvas" width="1080" height="1350"></canvas>
+    <button onclick="gerarCard()">📥 Baixar Card</button>
   </div>
 
   <script>
     const mensagens = [
-      `[nome], é uma conquista ter você fazendo parte do time do CNPJ Legal.\n\nSua chegada representa um reforço importante para a missão de apoiar e transformar a vida de quem empreende no Brasil. 💼💙\n\nCom dedicação e atitude, temos certeza de que você contribuirá de forma significativa com soluções que fazem a diferença na prática. 🚀\n\n**Seguimos juntos, somando forças para facilitar e valorizar o empreendedorismo de verdade!**`,
-      `[nome], é uma satisfação imensa ter você com a gente no time do CNPJ Legal.\n\nVocê agora faz parte de uma jornada que conecta pessoas, resolve problemas reais e impulsiona negócios locais. 💼💙\n\nCom seu envolvimento, vamos alcançar ainda mais resultados e gerar impacto onde mais importa. 🚀\n\n**Seguimos juntos, transformando ideias em oportunidades concretas para quem empreende!**`,
-      `[nome], que alegria contar com você ao nosso lado no CNPJ Legal.\n\nSua presença fortalece o compromisso com quem está buscando crescer, regularizar e transformar seu negócio. 💼💙\n\nSabemos que, com sua dedicação, vamos alcançar ainda mais pessoas com informação e apoio de verdade. 🚀\n\n**Seguimos juntos, com propósito e ação!**`,
-      `[nome], é um prazer enorme ter você fazendo parte dessa construção com o CNPJ Legal.\n\nEstamos criando caminhos mais acessíveis e seguros para quem escolheu empreender. 💼💙\n\nSua contribuição será essencial para orientar, acolher e facilitar decisões importantes para milhares de pessoas. 🚀\n\n**Seguimos juntos nessa missão de transformar vidas com simplicidade e verdade!**`,
-      `[nome], ter você no time do CNPJ Legal é um passo importante na nossa caminhada.\n\nEstamos ampliando o impacto, levando soluções reais para quem precisa tirar a ideia do papel ou sair da informalidade. 💼💙\n\nCom sua presença, vamos alcançar ainda mais empreendedores com suporte direto e acessível. 🚀\n\n**Seguimos juntos, levando praticidade e clareza para quem quer crescer!**`,
-      `[nome], é uma satisfação enorme contar com você no CNPJ Legal.\n\nEstamos aqui para caminhar ao lado de quem constrói o próprio futuro e precisa de apoio prático para seguir. 💼💙\n\nCom seu olhar e dedicação, vamos ampliar o acesso a soluções que fazem a diferença. 🚀\n\n**Seguimos juntos com propósito, coragem e impacto!**`,
-      `[nome], sua chegada representa mais força e mais alcance para a missão do CNPJ Legal.\n\nNosso trabalho é transformar o difícil em possível para quem está empreendendo no Brasil. 💼💙\n\nAcreditamos que, com você, vamos chegar ainda mais longe, com acolhimento e orientação prática. 🚀\n\n**Seguimos juntos para tornar o caminho mais leve e seguro para quem empreende.**`,
-      `[nome], é muito bom ter você no time que está fazendo a diferença com o CNPJ Legal.\n\nSeu papel é essencial nessa caminhada de apoiar quem precisa formalizar, organizar e crescer com segurança. 💼💙\n\nEstamos certos de que sua contribuição será sentida na ponta, onde as soluções precisam chegar. 🚀\n\n**Seguimos juntos, com responsabilidade e ação!**`,
-      `[nome], é um privilégio contar com sua presença no CNPJ Legal.\n\nVocê agora faz parte de uma rede que acredita no empreendedorismo como força de transformação. 💼💙\n\nCom sua dedicação, vamos entregar apoio de verdade para quem está dando seus primeiros passos — ou recomeçando. 🚀\n\n**Seguimos juntos nessa jornada com seriedade e entusiasmo!**`,
-      `[nome], estamos muito felizes em ter você com a gente nessa missão com o CNPJ Legal.\n\nCada pessoa no time amplia o nosso alcance e fortalece nosso propósito de simplificar a vida de quem empreende. 💼💙\n\nCom você, seguimos oferecendo orientação clara, acessível e humanizada. 🚀\n\n**Seguimos juntos, com foco em quem faz o Brasil acontecer!**`,
-      `[nome], sua presença aqui significa mais impacto, mais conexão e mais transformação.\n\nNo CNPJ Legal, acreditamos que o apoio certo pode mudar a trajetória de quem empreende. 💼💙\n\nCom você no time, vamos descomplicar, acolher e orientar com eficiência e proximidade. 🚀\n\n**Seguimos juntos nessa caminhada com verdade e propósito!**`,
-      `[nome], é uma satisfação ter você com a gente nessa missão pelo CNPJ Legal.\n\nEstamos construindo uma base sólida de apoio para quem precisa regularizar e crescer com segurança. 💼💙\n\nCom sua participação, vamos levar orientação e soluções para quem mais precisa. 🚀\n\n**Seguimos juntos, com clareza, responsabilidade e impacto real!**`,
-      `[nome], é inspirador ter você conosco no CNPJ Legal.\n\nNosso trabalho só faz sentido quando conseguimos chegar até quem está buscando orientação e apoio para empreender. 💼💙\n\nCom você, vamos ampliar essa rede de transformação, com foco em soluções práticas. 🚀\n\n**Seguimos juntos, passo a passo, lado a lado com quem precisa!**`,
-      `[nome], sua entrada no time representa mais um passo importante para o que estamos construindo com o CNPJ Legal.\n\nCada pessoa envolvida nessa missão amplia o alcance e o poder de transformação do nosso trabalho. 💼💙\n\nSabemos que sua participação será fundamental para gerar impacto real. 🚀\n\n**Seguimos juntos, sempre com propósito claro e foco em quem empreende!**`,
-      `[nome], é um grande reforço ter você no time do CNPJ Legal.\n\nJuntos, estamos construindo soluções que fazem sentido para quem precisa de apoio prático e direto. 💼💙\n\nCom você, vamos entregar mais acessibilidade, mais clareza e mais segurança para empreendedores de todo o país. 🚀\n\n**Seguimos juntos com responsabilidade e ação!**`,
-      `[nome], sua participação é um marco importante para a expansão do nosso propósito no CNPJ Legal.\n\nEstamos felizes em contar com você nessa caminhada de apoio e transformação. 💼💙\n\nCom sua dedicação, podemos alcançar ainda mais pessoas com soluções que fazem a diferença. 🚀\n\n**Seguimos juntos, com atenção e compromisso com quem empreende!**`,
-      `[nome], é muito importante ter você com a gente nessa missão que estamos realizando com o CNPJ Legal.\n\nNosso foco é apoiar, orientar e simplificar a jornada de quem está empreendendo. 💼💙\n\nCom sua presença, temos ainda mais força para fazer isso acontecer. 🚀\n\n**Seguimos juntos para facilitar, fortalecer e transformar!**`,
-      `[nome], sua presença no CNPJ Legal reforça nossa essência: estar perto de quem empreende e precisa de apoio.\n\nEstamos felizes por ter você com a gente nessa missão. 💼💙\n\nJuntos, vamos levar soluções que impactam de verdade e ajudam a construir negócios mais sólidos. 🚀\n\n**Seguimos juntos com responsabilidade, entrega e propósito!**`,
-      `[nome], é uma satisfação caminhar ao seu lado nessa construção que é o CNPJ Legal.\n\nVocê soma à nossa missão de transformar burocracia em acesso e informação de qualidade. 💼💙\n\nCom você, nossa mensagem chega mais longe e com mais clareza para quem mais precisa. 🚀\n\n**Seguimos juntos, com foco e intenção em cada passo!**`,
-      `[nome], ter você conosco representa mais que um reforço — é um avanço na missão do CNPJ Legal.\n\nEstamos construindo algo grande com propósito e impacto. 💼💙\n\nCom sua colaboração, mais empreendedores serão atendidos com seriedade, orientação e apoio verdadeiro. 🚀\n\n**Seguimos juntos, prontos para transformar realidades e abrir novos caminhos!**`
+      `[nome], é uma conquista ter você fazendo parte do time do CNPJ Legal.\n\nSua chegada representa um reforço importante para a missão de apoiar e transformar a vida de quem empreende no Brasil. 💼💙\n\n**Seguimos juntos, somando forças para facilitar e valorizar o empreendedorismo de verdade!**`,
+      `[nome], é uma satisfação imensa ter você com a gente no time do CNPJ Legal.\n\nVocê agora faz parte de uma jornada que conecta pessoas, resolve problemas reais e impulsiona negócios locais. 💼💙\n\n**Seguimos juntos, transformando ideias em oportunidades concretas para quem empreende!**`,
+      `[nome], que alegria contar com você ao nosso lado no CNPJ Legal.\n\nSua presença fortalece o compromisso com quem está buscando crescer, regularizar e transformar seu negócio. 💼💙\n\n**Seguimos juntos, com propósito e ação!**`,
+      `[nome], é um prazer enorme ter você fazendo parte dessa construção com o CNPJ Legal.\n\nEstamos criando caminhos mais acessíveis e seguros para quem escolheu empreender. 💼💙\n\n**Seguimos juntos nessa missão de transformar vidas com simplicidade e verdade!**`,
+      `[nome], ter você no time do CNPJ Legal é um passo importante na nossa caminhada.\n\nEstamos ampliando o impacto, levando soluções reais para quem precisa tirar a ideia do papel ou sair da informalidade. 💼💙\n\n**Seguimos juntos, levando praticidade e clareza para quem quer crescer!**`,
+      `[nome], é uma satisfação enorme contar com você no CNPJ Legal.\n\nEstamos aqui para caminhar ao lado de quem constrói o próprio futuro e precisa de apoio prático para seguir. 💼💙\n\n**Seguimos juntos com propósito, coragem e impacto!**`,
+      `[nome], sua chegada representa mais força e mais alcance para a missão do CNPJ Legal.\n\nNosso trabalho é transformar o difícil em possível para quem está empreendendo no Brasil. 💼💙\n\n**Seguimos juntos para tornar o caminho mais leve e seguro para quem empreende.**`,
+      `[nome], é muito bom ter você no time que está fazendo a diferença com o CNPJ Legal.\n\nSeu papel é essencial nessa caminhada de apoiar quem precisa formalizar, organizar e crescer com segurança. 💼💙\n\n**Seguimos juntos, com responsabilidade e ação!**`,
+      `[nome], é um privilégio contar com sua presença no CNPJ Legal.\n\nVocê agora faz parte de uma rede que acredita no empreendedorismo como força de transformação. 💼💙\n\n**Seguimos juntos nessa jornada com seriedade e entusiasmo!**`,
+      `[nome], estamos muito felizes em ter você com a gente nessa missão com o CNPJ Legal.\n\nCada pessoa no time amplia o nosso alcance e fortalece nosso propósito de simplificar a vida de quem empreende. 💼💙\n\n**Seguimos juntos, com foco em quem faz o Brasil acontecer!**`,
+      `[nome], sua presença aqui significa mais impacto, mais conexão e mais transformação.\n\nNo CNPJ Legal, acreditamos que o apoio certo pode mudar a trajetória de quem empreende. 💼💙\n\n**Seguimos juntos nessa caminhada com verdade e propósito!**`,
+      `[nome], é uma satisfação ter você com a gente nessa missão pelo CNPJ Legal.\n\nEstamos construindo uma base sólida de apoio para quem precisa regularizar e crescer com segurança. 💼💙\n\n**Seguimos juntos, com clareza, responsabilidade e impacto real!**`,
+      `[nome], é inspirador ter você conosco no CNPJ Legal.\n\nNosso trabalho só faz sentido quando conseguimos chegar até quem está buscando orientação e apoio para empreender. 💼💙\n\n**Seguimos juntos, passo a passo, lado a lado com quem precisa!**`,
+      `[nome], sua entrada no time representa mais um passo importante para o que estamos construindo com o CNPJ Legal.\n\nCada pessoa envolvida nessa missão amplia o alcance e o poder de transformação do nosso trabalho. 💼💙\n\n**Seguimos juntos, sempre com propósito claro e foco em quem empreende!**`,
+      `[nome], é um grande reforço ter você no time do CNPJ Legal.\n\nJuntos, estamos construindo soluções que fazem sentido para quem precisa de apoio prático e direto. 💼💙\n\n**Seguimos juntos com responsabilidade e ação!**`,
+      `[nome], sua participação é um marco importante para a expansão do nosso propósito no CNPJ Legal.\n\nEstamos felizes em contar com você nessa caminhada de apoio e transformação. 💼💙\n\n**Seguimos juntos, com atenção e compromisso com quem empreende!**`,
+      `[nome], é muito importante ter você com a gente nessa missão que estamos realizando com o CNPJ Legal.\n\nNosso foco é apoiar, orientar e simplificar a jornada de quem está empreendendo. 💼💙\n\n**Seguimos juntos para facilitar, fortalecer e transformar!**`,
+      `[nome], sua presença no CNPJ Legal reforça nossa essência: estar perto de quem empreende e precisa de apoio.\n\nEstamos felizes por ter você com a gente nessa missão. 💼💙\n\n**Seguimos juntos com responsabilidade, entrega e propósito!**`,
+      `[nome], é uma satisfação caminhar ao seu lado nessa construção que é o CNPJ Legal.\n\nVocê soma à nossa missão de transformar burocracia em acesso e informação de qualidade. 💼💙\n\n**Seguimos juntos, com foco e intenção em cada passo!**`,
+      `[nome], ter você conosco representa mais que um reforço — é um avanço na missão do CNPJ Legal.\n\nEstamos construindo algo grande com propósito e impacto. 💼💙\n\n**Seguimos juntos, prontos para transformar realidades e abrir novos caminhos!**`
     ];
 
-    let foto = null;
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
     const bg = new Image();
-    bg.src = "https://i.imgur.com/lQD9FCf.jpeg";
     const logo = new Image();
+    bg.src = "https://i.imgur.com/lQD9FCf.jpeg";
     logo.src = "https://i.imgur.com/IstqqNl.png";
+    let foto = null;
 
-    document.getElementById("fotoInput").addEventListener("change", e => {
+    document.getElementById("photoInput").addEventListener("change", e => {
       const reader = new FileReader();
       reader.onload = evt => {
         foto = new Image();
-        foto.onload = () => console.log("Foto carregada");
+        foto.onload = () => console.log("Foto carregada.");
         foto.src = evt.target.result;
       };
       reader.readAsDataURL(e.target.files[0]);
     });
 
-    async function desenharCard() {
+    async function gerarCard() {
       const nome = document.getElementById("nomeInput").value.trim();
       if (!foto || !nome) {
-        alert("Insira a foto e o nome do Embaixador.");
-        return null;
+        alert("⚠️ Por favor, insira a foto e o nome do Embaixador.");
+        return;
       }
 
       await Promise.all([
@@ -129,21 +131,21 @@
       ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
       ctx.drawImage(logo, (canvas.width - 300) / 2, 30, 300, 90);
 
-      const fsize = 320;
+      const fotoSize = 320;
       ctx.save();
       ctx.beginPath();
-      ctx.arc(540, 180 + fsize / 2, fsize / 2, 0, Math.PI * 2);
+      ctx.arc(540, 180 + fotoSize / 2, fotoSize / 2, 0, Math.PI * 2);
       ctx.clip();
-      ctx.drawImage(foto, 540 - fsize / 2, 180, fsize, fsize);
+      ctx.drawImage(foto, 540 - fotoSize / 2, 180, fotoSize, fotoSize);
       ctx.restore();
 
       ctx.font = "40px Arial";
       ctx.fillStyle = "rgba(255,255,255,0.5)";
-      ctx.fillText("⭑⭑⭑⭑⭑", canvas.width / 2, 180 + fsize + 50);
+      ctx.textAlign = "center";
+      ctx.fillText("⭑⭑⭑⭑⭑", canvas.width / 2, 180 + fotoSize + 40);
 
       const lines = mensagem.split("\n");
-      let y = 180 + fsize + 100;
-
+      let y = 180 + fotoSize + 100;
       ctx.fillStyle = "#00e500";
       ctx.font = "bold 26px Arial";
       ctx.fillText(lines[0], canvas.width / 2, y);
@@ -161,36 +163,19 @@
 
       ctx.fillStyle = "#00e500";
       ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
-
       ctx.fillStyle = "#000";
-      ctx.font = "bold 22px Arial";
+      ctx.font = "bold 20px Arial";
       ctx.fillText("⭐ Parabéns!", canvas.width / 2, canvas.height - 60);
       ctx.font = "18px Arial";
-      ctx.fillText("Você agora faz parte da agência para MEIs mais legal do Brasil.", canvas.width / 2, canvas.height - 35);
-      ctx.fillText("Faça vendas para conquistar sua estrela!", canvas.width / 2, canvas.height - 10);
+      ctx.fillText("Agora você faz parte da agência para MEIs mais legal do Brasil.", canvas.width / 2, canvas.height - 35);
+      ctx.fillText("Faça vendas para receber sua estrela!", canvas.width / 2, canvas.height - 10);
 
-      return canvas.toDataURL("image/png");
-    }
-
-    async function visualizarCard() {
-      const dataURL = await desenharCard();
-      if (!dataURL) return;
-
-      const preview = document.getElementById("preview");
-      preview.innerHTML = "";
-      const img = new Image();
-      img.src = dataURL;
-      preview.appendChild(img);
-    }
-
-    async function baixarCard() {
-      const dataURL = await desenharCard();
-      if (!dataURL) return;
-      const nome = document.getElementById("nomeInput").value.trim().replace(/\s+/g, "_");
-      const link = document.createElement("a");
-      link.href = dataURL;
-      link.download = `card_boas_vindas_${nome || "embaixador"}.png`;
-      link.click();
+      canvas.toBlob(blob => {
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `card_boas_vindas_${nome.replace(/\s+/g, "_")}.png`;
+        link.click();
+      }, "image/png");
     }
   </script>
 </body>
