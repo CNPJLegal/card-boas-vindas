@@ -1,99 +1,71 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Card de Boas-Vindas</title>
-  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
       background-color: #111;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: Arial, sans-serif;
       color: white;
       text-align: center;
       padding: 20px;
     }
     .container {
       background-color: #000;
-      border-radius: 20px;
+      border-radius: 16px;
       padding: 20px;
-      max-width: 420px;
-      margin: 0 auto;
+      max-width: 440px;
+      margin: auto;
     }
     h1 {
       color: #00e500;
-      font-size: 24px;
-      margin-bottom: 10px;
     }
-    .subtitle {
-      font-size: 14px;
-      color: #ccc;
-      margin-bottom: 20px;
-    }
-    input[type="file"],
-    input[type="text"] {
+    input[type="file"], input[type="text"] {
       width: 95%;
       padding: 10px;
       margin: 10px 0;
       font-size: 16px;
-      border-radius: 8px;
+      border-radius: 6px;
       border: none;
-    }
-    canvas {
-      display: none;
-    }
-    #previewContainer img {
-      margin-top: 20px;
-      border-radius: 20px;
-      width: 100%;
-    }
-    .button-row {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
     }
     button {
       padding: 12px 20px;
-      font-size: 16px;
+      margin: 10px 5px;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
+      font-size: 16px;
       cursor: pointer;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
-    .view-btn {
+    .ver {
       background-color: #007bff;
-      color: #fff;
+      color: white;
     }
-    .view-btn:hover {
-      background-color: #0069d9;
-    }
-    .download-btn {
+    .baixar {
       background-color: #00e500;
       color: black;
     }
-    .download-btn:hover {
-      background-color: #00c400;
+    #preview img {
+      margin-top: 20px;
+      width: 100%;
+      border-radius: 20px;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Gerar Card de Boas-Vindas</h1>
-    <p class="subtitle">
-      Insira a foto personalizada e o nome do Embaixador para gerar o card de boas-vindas.<br>
-      Após o download, envie no grupo marcando o embaixador desejando as boas-vindas.
+    <p style="color: #ccc; font-size: 14px;">
+      Insira a foto personalizada e o nome do Embaixador.<br>
+      Após o download, envie no grupo marcando o novo embaixador.
     </p>
-    <input type="file" id="fotoInput" accept="image/*" />
-    <input type="text" id="nomeInput" placeholder="Nome do novo Embaixador" />
-    <div class="button-row">
-      <button class="view-btn" onclick="visualizarCard()">👁️ Visualizar Card</button>
-      <button class="download-btn" onclick="baixarCard()">📥 Baixar Card</button>
-    </div>
-    <canvas id="canvas" width="1080" height="1350"></canvas>
-    <div id="previewContainer"></div>
+    <input type="file" id="fotoInput" accept="image/*"><br>
+    <input type="text" id="nomeInput" placeholder="Nome do Embaixador"><br>
+    <button class="ver" onclick="visualizarCard()">👁️ Visualizar</button>
+    <button class="baixar" onclick="baixarCard()">📥 Baixar</button>
+    <div id="preview"></div>
+    <canvas id="canvas" width="1080" height="1350" style="display:none;"></canvas>
   </div>
 
   <script>
@@ -128,10 +100,11 @@
     const logo = new Image();
     logo.src = "https://i.imgur.com/IstqqNl.png";
 
-    document.getElementById("fotoInput").addEventListener("change", (e) => {
+    document.getElementById("fotoInput").addEventListener("change", e => {
       const reader = new FileReader();
-      reader.onload = (evt) => {
+      reader.onload = evt => {
         foto = new Image();
+        foto.onload = () => console.log("Foto carregada");
         foto.src = evt.target.result;
       };
       reader.readAsDataURL(e.target.files[0]);
@@ -139,15 +112,18 @@
 
     async function desenharCard() {
       const nome = document.getElementById("nomeInput").value.trim();
-      if (!foto || !nome) return null;
+      if (!foto || !nome) {
+        alert("Insira a foto e o nome do Embaixador.");
+        return null;
+      }
 
       await Promise.all([
-        new Promise((r) => (bg.complete ? r() : (bg.onload = r))),
-        new Promise((r) => (logo.complete ? r() : (logo.onload = r))),
-        new Promise((r) => (foto.complete ? r() : (foto.onload = r))),
+        new Promise(r => bg.complete ? r() : bg.onload = r),
+        new Promise(r => logo.complete ? r() : logo.onload = r),
+        new Promise(r => foto.complete ? r() : foto.onload = r)
       ]);
 
-      const msg = mensagens[Math.floor(Math.random() * mensagens.length)].replaceAll("[nome]", nome);
+      const mensagem = mensagens[Math.floor(Math.random() * mensagens.length)].replaceAll("[nome]", nome);
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
@@ -165,18 +141,21 @@
       ctx.fillStyle = "rgba(255,255,255,0.5)";
       ctx.fillText("⭑⭑⭑⭑⭑", canvas.width / 2, 180 + fsize + 50);
 
-      const lines = msg.split("\n");
+      const lines = mensagem.split("\n");
       let y = 180 + fsize + 100;
+
       ctx.fillStyle = "#00e500";
       ctx.font = "bold 26px Arial";
       ctx.fillText(lines[0], canvas.width / 2, y);
       y += 40;
+
       ctx.fillStyle = "#fff";
       ctx.font = "22px Arial";
       for (let i = 1; i < lines.length - 1; i++) {
         ctx.fillText(lines[i], canvas.width / 2, y);
         y += 30;
       }
+
       ctx.font = "bold 24px Arial";
       ctx.fillText(lines[lines.length - 1].replace(/\*\*/g, ""), canvas.width / 2, y + 10);
 
@@ -184,33 +163,33 @@
       ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
 
       ctx.fillStyle = "#000";
-      ctx.font = "bold 24px Arial";
+      ctx.font = "bold 22px Arial";
       ctx.fillText("⭐ Parabéns!", canvas.width / 2, canvas.height - 60);
-      ctx.font = "20px Arial";
-      ctx.fillText("Agora você faz parte da agência para MEIs mais legal do Brasil.", canvas.width / 2, canvas.height - 35);
-      ctx.fillText("Faça suas primeiras vendas para receber sua estrela.", canvas.width / 2, canvas.height - 10);
+      ctx.font = "18px Arial";
+      ctx.fillText("Você agora faz parte da agência para MEIs mais legal do Brasil.", canvas.width / 2, canvas.height - 35);
+      ctx.fillText("Faça vendas para conquistar sua estrela!", canvas.width / 2, canvas.height - 10);
 
       return canvas.toDataURL("image/png");
     }
 
     async function visualizarCard() {
-      const data = await desenharCard();
-      if (!data) return alert("Preencha nome e envie uma imagem.");
+      const dataURL = await desenharCard();
+      if (!dataURL) return;
+
+      const preview = document.getElementById("preview");
+      preview.innerHTML = "";
       const img = new Image();
-      img.src = data;
-      img.style.borderRadius = "20px";
-      const container = document.getElementById("previewContainer");
-      container.innerHTML = "";
-      container.appendChild(img);
+      img.src = dataURL;
+      preview.appendChild(img);
     }
 
     async function baixarCard() {
-      const data = await desenharCard();
-      if (!data) return alert("Preencha nome e envie uma imagem.");
+      const dataURL = await desenharCard();
+      if (!dataURL) return;
       const nome = document.getElementById("nomeInput").value.trim().replace(/\s+/g, "_");
       const link = document.createElement("a");
+      link.href = dataURL;
       link.download = `card_boas_vindas_${nome || "embaixador"}.png`;
-      link.href = data;
       link.click();
     }
   </script>
